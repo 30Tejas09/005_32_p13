@@ -1,0 +1,37 @@
+stateDiagram-v2
+    [*] --> q0: Start
+    q0 --> q1: 'T'
+    q1 --> q2: 'S'
+    q2 --> q3: 'F'
+    q3 --> q4: '-'
+    q4 --> q5: [0-9] (Year Y1)
+    q5 --> q6: [0-9] (Year Y2)
+    q6 --> q7: [0-9] (Year Y3)
+    q7 --> q8: [0-9] (Year Y4)
+    q8 --> q9: '-'
+    q9 --> q10: [0-9] (Seq S1)
+    q10 --> q11: [0-9] (Seq S2)
+    q11 --> q12: [0-9] (Seq S3)
+    q12 --> q13: [0-9] (Seq S4)
+    q13 --> q14: [0-9] (Seq S5)
+    
+    q14 --> [*]: Valid Accept (TSF-YYYY-XXXXX)
+
+    q0 --> q_trap: Other
+    q1 --> q_trap: Other
+    q2 --> q_trap: Other
+    q3 --> q_trap: Other
+    q4 --> q_trap: Non-digit
+    q5 --> q_trap: Non-digit
+    q6 --> q_trap: Non-digit
+    q7 --> q_trap: Non-digit
+    q8 --> q_trap: Other
+    q9 --> q_trap: Non-digit
+    q10 --> q_trap: Non-digit
+    q11 --> q_trap: Non-digit
+    q12 --> q_trap: Non-digit
+    q13 --> q_trap: Non-digit
+    q14 --> q_trap: Extra chars (>14)
+    
+    q_trap --> q_trap: Any char
+    q_trap --> [*]: Rejection / Malformed Format

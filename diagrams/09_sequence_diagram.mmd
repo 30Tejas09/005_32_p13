@@ -1,0 +1,51 @@
+sequenceDiagram
+    autonumber
+    actor Reporter as Citizen / Reporter
+    participant UI as React Frontend
+    participant API as Flask REST API
+    participant DFA as DFA Validation Engine
+    participant NLP as 5-Category Classifier
+    participant Dispatcher as Dispatch Engine
+    participant DB as SQLite / SQLAlchemy
+
+    Reporter->>UI: Types Report ID & Fault Description
+    UI->>API: POST /api/dfa/simulate (Live Validation)
+    API->>DFA: Simulate state transitions on ID
+    DFA-->>API: { is_accepted, final_state, regex_match, steps }
+    API-->>UI: Live DFA & Regex parity response
+    UI-->>Reporter: Displays active DFA state badge & step trace
+
+    Reporter->>UI: Clicks "Submit Report & Execute Dispatch"
+    UI->>API: POST /api/reports/submit
+    API->>DFA: Re-validate ID strictly
+    API->>NLP: Classify description (Exact 5 Categories)
+    NLP-->>API: { primary_category, confidence_score, candidates }
+
+    API->>DB: INSERT into reports (status='SUBMITTED')
+    API->>DB: INSERT into classification_logs
+    API->>DB: INSERT into status_history
+
+    API->>Dispatcher: dispatch_report(report)
+    Dispatcher->>DB: Lookup RoutingRule for (Zone, Category)
+    Dispatcher->>DB: Check Primary Handler availability & capacity
+    alt Primary Handler Available & Within Capacity
+        Dispatcher->>DB: Create Assignment (type='PRIMARY', status='ACTIVE')
+        Dispatcher->>DB: Increment handler workload (+1)
+        Dispatcher->>DB: Update report status='ASSIGNED'
+    else Primary Unavailable or Full -> Backup Eligible
+        Dispatcher->>DB: Create Assignment (type='BACKUP', status='ACTIVE')
+        Dispatcher->>DB: Increment backup workload (+1)
+        Dispatcher->>DB: Update report status='ASSIGNED'
+    else Handlers Full & Priority is EMERGENCY/CRITICAL
+        Dispatcher->>DB: Create Assignment (type='ESCALATION', status='ACTIVE')
+        Dispatcher->>DB: Update report status='ESCALATED'
+    else Handlers Full & Normal Priority
+        Dispatcher->>DB: Update report status='PENDING' (Deterministic Queue)
+    end
+
+    Dispatcher->>DB: INSERT into dispatch_logs
+    Dispatcher->>DB: INSERT into status_history
+    DB-->>API: Transaction Committed
+
+    API-->>UI: 201 Created { report, dispatch_decision, dfa_validation }
+    UI-->>Reporter: Displays Success Confirmation Modal with Handler Details

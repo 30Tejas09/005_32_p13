@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310B981' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Traffic Signal Fault Dispatcher | Control Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN for instant styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Outfit', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              traffic: {
+                green: '#10B981',
+                yellow: '#F59E0B',
+                red: '#EF4444',
+                cyan: '#06B6D4',
+                dark: '#0B0F19',
+                card: '#111827',
+                border: '#1F2937'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Outfit', sans-serif;
+        background-color: #0b0f19;
+      }
+      code, pre, .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      /* Custom scrollbars */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0b0f19;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #1f293d;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #374151;
+      }
+      @keyframes pulseGlowGreen {
+        0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        50% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.1); }
+      }
+      @keyframes pulseGlowRed {
+        0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+        50% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); }
+      }
+      .glow-green {
+        animation: pulseGlowGreen 2s infinite ease-in-out;
+      }
+      .glow-red {
+        animation: pulseGlowRed 1.5s infinite ease-in-out;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-950 text-slate-100 antialiased selection:bg-emerald-500 selection:text-slate-950 min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

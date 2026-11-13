@@ -1,0 +1,22 @@
+flowchart TD
+    User([Reporter]) --> OpenForm[Open Submission Portal]
+    OpenForm --> InputID[Enter or Auto-Generate Report ID]
+    InputID --> LiveDFA[Client & Server Run DFA Simulation]
+    LiveDFA --> CheckValid{DFA Accepted & Regex Match?}
+    
+    CheckValid --No--> ShowDFAError[Display State Transition Trap Reason]
+    ShowDFAError --> FixID[Correction Required by User]
+    FixID --> InputID
+    
+    CheckValid --Yes--> EnterDetails[Enter Signal ID, Zone, Location, Contact]
+    EnterDetails --> EnterDesc[Type Fault Description]
+    EnterDesc --> NLPPreview[Real-Time Keyword Classification Preview]
+    NLPPreview --> SuggestPrio[Auto-Suggest Priority & Category]
+    SuggestPrio --> ReviewSubmit[User Reviews and Submits Form]
+    
+    ReviewSubmit --> POSTAPI[POST /api/reports/submit]
+    POSTAPI --> ValidateAll[Full Backend Schema Validation]
+    ValidateAll --> SaveDB[Insert Report with Status 'SUBMITTED']
+    SaveDB --> TriggerDispatch[Execute Dispatch Algorithm]
+    TriggerDispatch --> ResponseJSON[Return Dispatch Decision & Assignment]
+    ResponseJSON --> ShowConfirmation[Display Success Modal to Reporter]

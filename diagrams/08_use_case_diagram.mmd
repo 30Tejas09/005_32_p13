@@ -1,0 +1,42 @@
+flowchart LR
+    subgraph Actors
+        Citizen["Reporter / Citizen / Officer"]
+        Technician["Maintenance Handler"]
+        Admin["Traffic System Administrator"]
+    end
+
+    subgraph SystemBoundary["Traffic Signal Fault Dispatcher System"]
+        UC1((Submit Fault Report))
+        UC2((Validate ID via DFA))
+        UC3((Auto-Classify Fault))
+        UC4((Track Incident Status))
+        
+        UC5((Toggle Availability))
+        UC6((Adjust Workload Capacity))
+        UC7((Accept & Progress Task))
+        UC8((Submit Technical Resolution))
+        
+        UC9((Configure Routing Rules))
+        UC10((Manage Primary & Backup Handlers))
+        UC11((Trigger Manual Re-Dispatch))
+        UC12((Emergency Escalation Override))
+        UC13((View Real-Time Analytics))
+        UC14((Audit DFA & State Transitions))
+    end
+
+    Citizen --> UC1
+    Citizen --> UC4
+    UC1 -.->|includes| UC2
+    UC1 -.->|includes| UC3
+
+    Technician --> UC5
+    Technician --> UC6
+    Technician --> UC7
+    Technician --> UC8
+
+    Admin --> UC9
+    Admin --> UC10
+    Admin --> UC11
+    Admin --> UC12
+    Admin --> UC13
+    Admin --> UC14

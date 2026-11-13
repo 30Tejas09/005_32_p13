@@ -1,0 +1,38 @@
+flowchart TD
+    Start([Citizen or Officer Submits Fault]) --> Step1[Report Ingestion]
+    Step1 --> Step2{DFA Validation<br/>& Regex Check}
+    
+    Step2 --"Malformed ID"--> Reject["Reject Submission<br/>(Record Trap State Reason)"]
+    Reject --> EndReject([End: Validation Error Returned])
+    
+    Step2 --"Valid Format"--> Step3[5-Category Fault Classification]
+    Step3 --> Step4[Priority Detection<br/>Emergency / Critical / High / Med / Low]
+    Step4 --> Step5{Zone Recognition}
+    
+    Step5 --"Unknown Zone"--> FallbackQueue["Central Fallback Queue<br/>(Status: PENDING)"]
+    
+    Step5 --"Known Zone"--> Step6[Routing Table Lookup<br/>Zone + Category]
+    Step6 --> Step7{Primary Handler<br/>Available & Within Capacity?}
+    
+    Step7 --"Yes"--> AssignPrimary["Assign to Primary Handler<br/>(Status: ASSIGNED, Workload +1)"]
+    
+    Step7 --"No"--> Step8{Backup Handler<br/>Configured & Eligible?}
+    
+    Step8 --"Yes"--> AssignBackup["Assign to Backup Handler<br/>(Status: ASSIGNED, Workload +1)"]
+    
+    Step8 --"No"--> Step9{Priority Level?}
+    
+    Step9 --"Emergency / Critical"--> Escalation["Emergency Escalation Path<br/>(Status: ESCALATED)"]
+    Step9 --"Normal (High/Med/Low)"--> WaitingQueue["Deterministic Waiting Queue<br/>(Status: PENDING)"]
+    
+    AssignPrimary --> WorkExecution["Handler Work Execution<br/>(Status: IN_PROGRESS)"]
+    AssignBackup --> WorkExecution
+    
+    WorkExecution --> Resolve["Technician Marks Resolved<br/>(Status: RESOLVED, Workload -1)"]
+    Resolve --> DBCommit[("Commit Status History<br/>& Audit Logs")]
+    FallbackQueue --> DBCommit
+    Escalation --> DBCommit
+    WaitingQueue --> DBCommit
+    
+    DBCommit --> Analytics[Real-Time Analytics Dashboard Update]
+    Analytics --> Complete([Workflow Complete])

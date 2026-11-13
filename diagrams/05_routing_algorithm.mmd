@@ -1,0 +1,31 @@
+flowchart TD
+    In([Report Ingested]) --> S1[STEP 1: Validate Report ID via DFA & Regex]
+    S1 --> S2[STEP 2: Identify Fault Category - Exact 5 Categories]
+    S2 --> S3[STEP 3: Determine Priority - Emergency/Critical/High/Med/Low]
+    S3 --> S4[STEP 4: Match Zone & Category in Routing Table]
+    
+    S4 --> ZCheck{Zone Found in Database?}
+    ZCheck --No--> S4A[Edge Case A: Route to CENTRAL_FALLBACK_QUEUE]
+    
+    ZCheck --Yes--> S5[STEP 5: Identify Primary Handler from Rule]
+    S5 --> S6{STEP 6: Check Handler Availability}
+    S6 --Available--> S7{STEP 7: Check Capacity Workload < Max}
+    
+    S7 --Within Capacity--> S8[STEP 8: Assign Report to Primary Handler<br/>Status: ASSIGNED<br/>Workload: +1]
+    
+    S6 --Unavailable--> S9[STEP 9: Check Configured Backup Handler]
+    S7 --Capacity Full--> S9
+    
+    S9 --> BCheck{Backup Eligible, Available & Within Capacity?}
+    BCheck --Yes--> BAssign[Assign to Backup Handler<br/>Status: ASSIGNED<br/>Workload: +1]
+    
+    BCheck --No--> S10{STEP 10: Check Emergency Priority Override}
+    S10 --"Priority = EMERGENCY or CRITICAL"--> Escalate[Escalate to Emergency Path<br/>Status: ESCALATED]
+    S10 --"Normal Priority"--> Queue[Place in Waiting Queue<br/>Status: PENDING<br/>Deterministic Order]
+    
+    S8 --> S11[STEP 11: Save Assignment, Status History & Dispatch Audit Log]
+    BAssign --> S11
+    Escalate --> S11
+    Queue --> S11
+    S4A --> S11
+    S11 --> Out([Dispatch Sequence Completed])

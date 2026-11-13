@@ -1,0 +1,125 @@
+erDiagram
+    users ||--o{ status_history : "records updates"
+    zones ||--o{ handlers : "assigned to"
+    zones ||--o{ reports : "located in"
+    zones ||--o{ routing_rules : "defines"
+    
+    handlers ||--o{ routing_rules : "primary in"
+    handlers ||--o{ routing_rules : "backup in"
+    handlers ||--o{ assignments : "servicing"
+    handlers ||--o{ dispatch_logs : "targeted by"
+    
+    reports ||--o{ assignments : "assigned via"
+    reports ||--o{ status_history : "tracks"
+    reports ||--o{ dispatch_logs : "audited by"
+    reports ||--o{ classification_logs : "categorized by"
+
+    users {
+        int id PK
+        string username UK
+        string password_hash
+        string role
+        string full_name
+        string email
+        string phone
+        datetime created_at
+    }
+
+    zones {
+        int id PK
+        string zone_code UK
+        string name
+        text description
+        boolean is_active
+    }
+
+    handlers {
+        int id PK
+        string handler_code UK
+        string name
+        string email
+        string phone
+        int zone_id FK
+        text supported_categories
+        boolean is_available
+        int max_capacity
+        int current_workload
+        boolean is_backup_eligible
+        datetime created_at
+    }
+
+    reports {
+        int id PK
+        string report_code UK
+        string reporter_name
+        string reporter_contact
+        string signal_id
+        int zone_id FK
+        string zone_raw
+        string location
+        text description
+        string category
+        string priority
+        string status
+        text rejection_reason
+        datetime created_at
+        datetime updated_at
+    }
+
+    routing_rules {
+        int id PK
+        int zone_id FK
+        string category
+        int primary_handler_id FK
+        int backup_handler_id FK
+        string escalation_path
+        boolean is_active
+    }
+
+    assignments {
+        int id PK
+        int report_id FK
+        int handler_id FK
+        datetime assigned_at
+        string status
+        int reassigned_from_id FK
+        string assignment_type
+        datetime completed_at
+        text resolution_notes
+    }
+
+    status_history {
+        int id PK
+        int report_id FK
+        string previous_status
+        string new_status
+        string updated_by
+        text remarks
+        datetime created_at
+    }
+
+    dispatch_logs {
+        int id PK
+        int report_id FK
+        string decision
+        text reason
+        int primary_handler_id FK
+        int assigned_handler_id FK
+        boolean is_backup
+        boolean is_escalated
+        boolean is_queued
+        datetime timestamp
+    }
+
+    classification_logs {
+        int id PK
+        int report_id FK
+        string detected_category
+        text matched_categories
+        float confidence_score
+        string resolution_rule
+        boolean is_manual_override
+        string overridden_by
+        string original_category
+        datetime timestamp
+    }

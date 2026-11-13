@@ -1,0 +1,40 @@
+flowchart TD
+    subgraph PrimaryRoute["Primary Route Check"]
+        PR_Avail{"Primary Handler<br/>is_available == True?"}
+        PR_Cap{"Primary Handler<br/>workload < max_capacity?"}
+        PR_Assign["Assign to Primary<br/>Log: ASSIGNED_PRIMARY"]
+    end
+
+    subgraph BackupRoute["Backup Route Check"]
+        BR_Config{"Backup Handler<br/>Configured in Rule?"}
+        BR_Elig{"Backup Handler<br/>is_backup_eligible == True?"}
+        BR_Avail{"Backup Handler<br/>is_available == True?"}
+        BR_Cap{"Backup Handler<br/>workload < max_capacity?"}
+        BR_Assign["Assign to Backup<br/>Log: ASSIGNED_BACKUP"]
+    end
+
+    subgraph EscalationQueue["Escalation vs Queue Decision"]
+        PriorityCheck{"Priority Level?"}
+        EmergencyEscalate["Emergency Escalation Path<br/>Status: ESCALATED<br/>Log: ESCALATED_EMERGENCY"]
+        WaitingQueue["Deterministic Waiting Queue<br/>Status: PENDING<br/>Log: QUEUED_CAPACITY"]
+    end
+
+    Start([Incoming Validated Report]) --> PR_Avail
+    PR_Avail --Yes--> PR_Cap
+    PR_Cap --Yes--> PR_Assign
+    
+    PR_Avail --No--> BR_Config
+    PR_Cap --No--> BR_Config
+    
+    BR_Config --Yes--> BR_Elig
+    BR_Elig --Yes--> BR_Avail
+    BR_Avail --Yes--> BR_Cap
+    BR_Cap --Yes--> BR_Assign
+    
+    BR_Config --No--> PriorityCheck
+    BR_Elig --No--> PriorityCheck
+    BR_Avail --No--> PriorityCheck
+    BR_Cap --No--> PriorityCheck
+    
+    PriorityCheck --"EMERGENCY / CRITICAL"--> EmergencyEscalate
+    PriorityCheck --"HIGH / MEDIUM / LOW"--> WaitingQueue

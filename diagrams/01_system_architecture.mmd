@@ -1,0 +1,43 @@
+flowchart TD
+    subgraph ClientLayer["Frontend Client (React 18 + Tailwind CSS + Recharts)"]
+        UI_Sub["Report Ingestion UI<br/>(Live DFA & Regex Tester)"]
+        UI_Track["Citizen Tracking Dashboard<br/>(Live Status & Timeline)"]
+        UI_Handler["Handler Operations Console<br/>(Accept, Progress, Resolve)"]
+        UI_Route["Routing Matrix Console<br/>(25-Cell Rule Editor & Queues)"]
+        UI_Analytics["Analytics Dashboard<br/>(Recharts DB Visualizations)"]
+        UI_DFA["DFA Visualizer & Lab<br/>(State Trace & Transition Table)"]
+    end
+
+    subgraph APILayer["REST API Gateway (Flask 2.3 + Flask-CORS)"]
+        AuthRoute["/api/auth/*"]
+        DFARoute["/api/dfa/*"]
+        ReportRoute["/api/reports/*"]
+        DispatchRoute["/api/dispatch/*"]
+        HandlerRoute["/api/handlers/*"]
+        RoutingRoute["/api/routing/*"]
+        AnalyticsRoute["/api/analytics/*"]
+    end
+
+    subgraph CoreEngine["Algorithmic Processing Layer"]
+        DFAEngine["DFA Validation Engine<br/>(16-State Automaton)"]
+        RegexEngine["Regex Validator<br/>(^TSF-[0-9]{4}-[0-9]{5}$)"]
+        ClassEngine["5-Category Fault Classifier<br/>(Weighted NLP & Conflict Priority)"]
+        DispatchEngine["Priority Dispatch Engine<br/>(Zone Routing & Capacity)"]
+        QueueEngine["Deterministic Waiting Queue<br/>(Rank-Ordered Tie-Breaker)"]
+    end
+
+    subgraph DataLayer["Persistence Layer (SQLite 3 + SQLAlchemy ORM)"]
+        DB_Users[("users")]
+        DB_Reports[("reports")]
+        DB_Zones[("zones")]
+        DB_Handlers[("handlers")]
+        DB_Rules[("routing_rules")]
+        DB_Assignments[("assignments")]
+        DB_History[("status_history")]
+        DB_DispatchLogs[("dispatch_logs")]
+        DB_ClassLogs[("classification_logs")]
+    end
+
+    ClientLayer <-->|HTTP / JSON REST API| APILayer
+    APILayer --> CoreEngine
+    CoreEngine --> DataLayer
